@@ -63,18 +63,6 @@ export default function AdminLoginPage() {
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
-            
-            {/* Obfuscated Honeypot Input Field */}
-            <div className="hidden" aria-hidden="true">
-              <input
-                type="text"
-                name="hp_access_key"
-                tabIndex="-1"
-                value={hpAccessKey}
-                onChange={(e) => setHpAccessKey(e.target.value)}
-                autoComplete="off"
-              />
-            </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-sans text-cyber-gray">Security Access Key</label>

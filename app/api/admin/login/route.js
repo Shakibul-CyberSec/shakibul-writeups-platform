@@ -17,11 +17,11 @@ export async function POST(request) {
       );
     }
 
-    const { password, hp_access_key } = await request.json();
+    const { password, hp_website_trap } = await request.json();
 
     // 2. Honeypot Check (Bot Trapping)
-    if (hp_access_key && hp_access_key.trim() !== '') {
-      return NextResponse.json({ success: false, message: 'Invalid credentials' }, { status: 401 });
+    if (hp_website_trap && typeof hp_website_trap === 'string' && hp_website_trap.trim() !== '') {
+      return NextResponse.json({ success: false, message: 'Bot access rejected' }, { status: 401 });
     }
 
     // 3. Artificial Timing Delay
