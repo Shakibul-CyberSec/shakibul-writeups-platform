@@ -27,8 +27,8 @@ export async function POST(request) {
     // 3. Artificial Timing Delay
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // 4. Strict Environment Variable Password Enforcement (No Hardcoded Fallback)
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    // 4. Strict Environment Variable Password Enforcement
+    const adminPassword = (process.env.ADMIN_PASSWORD || '').trim();
 
     if (!adminPassword) {
       return NextResponse.json(
@@ -41,7 +41,7 @@ export async function POST(request) {
     }
 
     // 5. Constant-Time Timing Safe Password Comparison
-    const isValid = timingSafeCompare(password, adminPassword);
+    const isValid = timingSafeCompare((password || '').trim(), adminPassword);
 
     if (isValid) {
       const payload = `admin_shakibul_${Date.now()}`;
