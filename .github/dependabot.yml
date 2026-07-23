@@ -1,24 +1,36 @@
 version: 2
 updates:
-  # 1. Dependabot Automated Dependency Security Updates for npm
+  # 1. Dependabot Version Updates for npm (Next.js, React, Tailwind, & JS Packages)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
-    versioning-strategy: "auto"
+      day: "monday"
+      time: "04:00"
+    target-branch: "main"
+    open-pull-requests-limit: 10
+    versioning-strategy: "increase"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
     labels:
       - "dependencies"
-      - "security"
       - "npm"
+      - "automated-pr"
     assignees:
       - "Shakibul-CyberSec"
 
-  # 2. GitHub Actions Workflows
+  # 2. GitHub Actions CI/CD Workflow Updates
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    target-branch: "main"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(actions)"
     labels:
       - "dependencies"
       - "github-actions"
