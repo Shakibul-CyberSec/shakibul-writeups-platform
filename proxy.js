@@ -6,6 +6,15 @@ export async function proxy(request) {
     ? crypto.randomUUID().replace(/-/g, '')
     : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
+  /* ---------- Secret Admin Portal Route Guard ---------- */
+  const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith('/portal-shakibul-cyber-cms/editor')) {
+    const sessionCookie = request.cookies.get('admin_session');
+    if (!sessionCookie || !sessionCookie.value) {
+      return NextResponse.redirect(new URL('/portal-shakibul-cyber-cms/login', request.url));
+    }
+  }
+
   const response = NextResponse.next();
 
   /* ---------- Strict Content Security Policy (CSP) Header ---------- */
