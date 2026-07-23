@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import ThemeSwitcher from '../../components/ThemeSwitcher';
 import MarkdownRenderer from '../../components/MarkdownRenderer';
-import { FiEdit3, FiEye, FiSend, FiCode, FiAlertTriangle, FiFileText } from 'react-icons/fi';
+import { FiEdit3, FiEye, FiSend, FiCode, FiAlertTriangle, FiFileText, FiTrash2, FiRefreshCw } from 'react-icons/fi';
 
 export default function CMSPage() {
   const [title, setTitle] = useState('');
@@ -22,7 +22,52 @@ Write security analysis here...
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
+  const [publishedWriteups, setPublishedWriteups] = useState([]);
+  const [isDeletingId, setIsDeletingId] = useState(null);
   const router = useRouter();
+
+  const fetchWriteups = async () => {
+    try {
+      const res = await fetch('/api/writeups');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) setPublishedWriteups(data);
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    fetchWriteups();
+  }, []);
+
+  const handleDeleteWriteup = async (id, writeupTitle) => {
+    if (!window.confirm(`Are you sure you want to permanently delete '${writeupTitle}'?`)) {
+      return;
+    }
+
+    setIsDeletingId(id);
+    setStatusMsg('');
+
+    try {
+      const res = await fetch('/api/admin/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStatusMsg(`✅ Writeup '${writeupTitle}' deleted successfully!`);
+        setPublishedWriteups(prev => prev.filter(w => w.id !== id && w.slug !== id));
+      } else {
+        setStatusMsg(`❌ Delete failed: ${data.message}`);
+      }
+    } catch (err) {
+      setStatusMsg('❌ Server error during writeup deletion.');
+    } finally {
+      setIsDeletingId(null);
+    }
+  };
 
 
 
@@ -238,6 +283,65 @@ Write security analysis here...
             </div>
           </div>
 
+        </div>
+
+        {/* Manage & Delete Published Writeups */}
+        <div className="mt-12 glass-card p-6 border border-cyber-border space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-cyber-border">
+            <div>
+              <h2 className="text-xl font-heading font-bold text-white flex items-center space-x-2">
+                <FiTrash2 className="text-red-400" />
+                <span>Manage & Delete Writeups</span>
+              </h2>
+              <p className="text-xs font-sans text-cyber-gray mt-1">
+                Single-click delete management for existing published research writeups.
+              </p>
+            </div>
+            <button
+              onClick={fetchWriteups}
+              className="flex items-center space-x-1 px-3 py-1.5 bg-[#0a0d14] hover:bg-[#1a2336] border border-cyber-border text-cyber-gray hover:text-white rounded-lg text-xs font-mono transition-colors cursor-pointer"
+            >
+              <FiRefreshCw className="text-xs" />
+              <span>Refresh List</span>
+            </button>
+          </div>
+
+          {publishedWriteups.length === 0 ? (
+            <div className="text-center py-8 text-xs font-mono text-cyber-gray">
+              No writeups currently found to delete.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {publishedWriteups.map((w) => (
+                <div
+                  key={w.id}
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl bg-[#0a0d14] border border-[#1a2336] hover:border-red-500/30 transition-all gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      {w.category && (
+                        <span className="px-2 py-0.5 rounded bg-neon-cyan/10 text-neon-cyan text-[10px] font-mono border border-neon-cyan/30">
+                          {w.category}
+                        </span>
+                      )}
+                      <span className="text-[10px] font-mono text-cyber-gray">{w.date}</span>
+                    </div>
+                    <h3 className="text-sm font-heading font-bold text-white">{w.title}</h3>
+                    <p className="text-xs font-sans text-cyber-gray line-clamp-1">{w.summary}</p>
+                  </div>
+
+                  <button
+                    onClick={() => handleDeleteWriteup(w.id, w.title)}
+                    disabled={isDeletingId === w.id}
+                    className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 text-red-400 font-sans text-xs font-semibold rounded-lg transition-all hover:scale-105 shrink-0 disabled:opacity-50 cursor-pointer"
+                  >
+                    <FiTrash2 />
+                    <span>{isDeletingId === w.id ? 'Deleting...' : 'Delete Writeup'}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </main>
