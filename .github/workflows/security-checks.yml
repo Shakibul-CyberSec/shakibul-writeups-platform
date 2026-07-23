@@ -1,0 +1,46 @@
+name: Security Audit & Automated Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  security-audit:
+    name: Security & Vulnerability Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run NPM Audit (0 Vulnerabilities Check)
+        run: |
+          echo "=== Executing Security Dependency Audit ==="
+          npm audit --audit-level=high
+
+      - name: Run Hardcoded Credentials Scanner
+        run: |
+          echo "=== Scanning for Hardcoded Passwords or Secret Keys ==="
+          ! grep -rnI "password\s*=\s*['\"][^'\"]\+['\"]" app/ proxy.js next.config.mjs || (echo "FAILED: Hardcoded secret detected!" && exit 1)
+
+      - name: Production Build Verification
+        run: |
+          echo "=== Validating Clean Next.js Build ==="
+          ADMIN_PASSWORD=ci_test_password_2026 npm run build
