@@ -21,7 +21,7 @@ export async function POST(request) {
 
     // 2. Honeypot Check (Bot Trapping)
     if (hp_access_key && hp_access_key.trim() !== '') {
-      return NextResponse.json({ success: true, message: 'Authentication successful' });
+      return NextResponse.json({ success: false, message: 'Invalid credentials' }, { status: 401 });
     }
 
     // 3. Artificial Timing Delay

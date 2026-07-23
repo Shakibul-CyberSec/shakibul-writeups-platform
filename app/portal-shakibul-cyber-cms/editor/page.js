@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import ThemeSwitcher from '../../components/ThemeSwitcher';
@@ -23,6 +23,13 @@ Write security analysis here...
   const [isPublishing, setIsPublishing] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    // Check if session cookie is present
+    if (typeof document !== 'undefined' && !document.cookie.includes('admin_session')) {
+      router.push('/portal-shakibul-cyber-cms/login');
+    }
+  }, [router]);
 
   const handleSnippetInsert = (snippetType) => {
     let snippet = '';
