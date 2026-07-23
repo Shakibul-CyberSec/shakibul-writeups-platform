@@ -104,8 +104,9 @@ export function timingSafeCompare(a, b) {
 
 /**
  * 4. HMAC-SHA256 Session Signature Generator & Verifier
+ * Dynamically generated per runtime instance if ADMIN_SESSION_SECRET is omitted
  */
-const SECRET_KEY = process.env.ADMIN_SESSION_SECRET || 'shakibul_cybersec_hmac_secret_key_2026';
+const SECRET_KEY = process.env.ADMIN_SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
 export function generateSessionToken(payloadStr) {
   const hmac = crypto.createHmac('sha256', SECRET_KEY);
