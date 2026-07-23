@@ -108,20 +108,28 @@ export function timingSafeCompare(a, b) {
  */
 const SECRET_KEY = process.env.ADMIN_SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
-export function generateSessionToken(payloadStr) {
+export function generateSessionToken(payloadStr, userAgent = '') {
+  const cleanUA = (userAgent || '').substring(0, 120);
   const hmac = crypto.createHmac('sha256', SECRET_KEY);
-  hmac.update(payloadStr);
+  hmac.update(`${payloadStr}.${cleanUA}`);
   const hashHex = hmac.digest('hex');
   return `${payloadStr}.${hashHex}`;
 }
 
-export function verifySessionToken(token) {
+export function verifySessionToken(token, userAgent = '') {
   if (!token || typeof token !== 'string' || !token.includes('.')) return false;
   const lastDot = token.lastIndexOf('.');
   const payloadStr = token.substring(0, lastDot);
   const hashHex = token.substring(lastDot + 1);
 
-  const expectedToken = generateSessionToken(payloadStr);
+  // 12-Hour Server-Side Timestamp Expiration Check
+  const parts = payloadStr.split('_');
+  const timestamp = parseInt(parts[parts.length - 1], 10);
+  if (isNaN(timestamp) || Date.now() - timestamp > 12 * 60 * 60 * 1000) {
+    return false;
+  }
+
+  const expectedToken = generateSessionToken(payloadStr, userAgent);
   const expectedHash = expectedToken.substring(expectedToken.lastIndexOf('.') + 1);
   return timingSafeCompare(hashHex, expectedHash);
 }

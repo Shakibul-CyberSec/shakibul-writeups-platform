@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { verifySessionToken } from './app/lib/security';
 
 export async function proxy(request) {
   /* ---------- Generate Cryptographic Nonce ---------- */
@@ -10,7 +11,9 @@ export async function proxy(request) {
   const pathname = request.nextUrl.pathname;
   if (pathname.startsWith('/portal-shakibul-cyber-cms/editor')) {
     const sessionCookie = request.cookies.get('admin_session');
-    if (!sessionCookie || !sessionCookie.value) {
+    const userAgent = request.headers.get('user-agent') || '';
+    
+    if (!sessionCookie || !sessionCookie.value || !verifySessionToken(sessionCookie.value, userAgent)) {
       return NextResponse.redirect(new URL('/portal-shakibul-cyber-cms/login', request.url));
     }
   }

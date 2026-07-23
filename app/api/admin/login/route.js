@@ -44,8 +44,9 @@ export async function POST(request) {
     const isValid = timingSafeCompare((password || '').trim(), adminPassword);
 
     if (isValid) {
+      const userAgent = request.headers.get('user-agent') || '';
       const payload = `admin_shakibul_${Date.now()}`;
-      const signedToken = generateSessionToken(payload);
+      const signedToken = generateSessionToken(payload, userAgent);
 
       const response = NextResponse.json({ success: true, message: 'Admin authenticated successfully' });
 

@@ -22,7 +22,8 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Unauthorized session.' }, { status: 401 });
     }
 
-    const isValidSession = verifySessionToken(session.value);
+    const userAgent = request.headers.get('user-agent') || '';
+    const isValidSession = verifySessionToken(session.value, userAgent);
     if (!isValidSession) {
       return NextResponse.json({ success: false, message: 'Invalid or forged HMAC session signature.' }, { status: 403 });
     }
