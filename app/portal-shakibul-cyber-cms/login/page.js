@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        router.push('/portal-shakibul-cyber-cms/editor');
+        window.location.href = '/portal-shakibul-cyber-cms/editor';
       } else {
         setErrorMsg(data.message || 'Invalid password credentials');
       }

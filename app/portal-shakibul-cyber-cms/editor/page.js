@@ -24,12 +24,7 @@ Write security analysis here...
   const [statusMsg, setStatusMsg] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    // Check if session cookie is present
-    if (typeof document !== 'undefined' && !document.cookie.includes('admin_session')) {
-      router.push('/portal-shakibul-cyber-cms/login');
-    }
-  }, [router]);
+
 
   const handleSnippetInsert = (snippetType) => {
     let snippet = '';
