@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { verifySessionToken, sanitizeMarkdown } from '../../../lib/security';
+import { verifySessionToken, sanitizeMarkdown, isValidSlug } from '../../../lib/security';
 
 let kv = null;
 if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
@@ -32,7 +32,7 @@ export async function POST(request) {
     const origin = request.headers.get('origin');
     const host = request.headers.get('host');
 
-    if (origin && !origin.includes(host)) {
+    if (!origin || !origin.includes(host)) {
       return NextResponse.json({ success: false, message: 'CSRF Origin validation failed.' }, { status: 403 });
     }
 
@@ -53,6 +53,11 @@ export async function POST(request) {
     const summary = rawData.summary ? sanitizeMarkdown(rawData.summary.trim()) : (content ? content.substring(0, 140) + '...' : '');
 
     const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `writeup-${Date.now()}`;
+
+    // Ensure generated ID is safe before storing
+    if (!id || !isValidSlug(id)) {
+      return NextResponse.json({ success: false, message: 'Could not generate a valid writeup ID from title.' }, { status: 400 });
+    }
 
     const articleObject = {
       id,

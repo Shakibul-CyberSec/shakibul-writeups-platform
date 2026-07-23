@@ -31,13 +31,13 @@ export async function POST(request) {
     // 2. CSRF Origin & Referer Validation
     const origin = request.headers.get('origin');
     const host = request.headers.get('host');
-    if (origin && !origin.includes(host)) {
+    if (!origin || !origin.includes(host)) {
       return NextResponse.json({ success: false, message: 'CSRF Origin validation failed.' }, { status: 403 });
     }
 
     const { id } = await request.json();
 
-    if (!id || typeof id !== 'string') {
+    if (!id || typeof id !== 'string' || !isValidSlug(id)) {
       return NextResponse.json({ success: false, message: 'Writeup ID is required.' }, { status: 400 });
     }
 

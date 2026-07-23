@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { checkCommentRateLimit, encodeHTMLEntities, isValidSlug } from '../../lib/security';
 
 let kv = null;
@@ -83,7 +84,7 @@ export async function POST(request) {
     const cleanText = encodeHTMLEntities(text.trim());
 
     const newComment = {
-      id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      id: `comment-${Date.now()}-${crypto.randomUUID().replace(/-/g, '').substring(0, 8)}`,
       writeupId,
       author: cleanAuthor,
       text: cleanText,
@@ -103,6 +104,11 @@ export async function POST(request) {
     }
 
     comments.unshift(newComment);
+
+    // Cap comment storage to prevent unbounded growth (M-4)
+    if (comments.length > 100) {
+      comments = comments.slice(0, 100);
+    }
 
     if (kv) {
       await kv.set(key, comments);

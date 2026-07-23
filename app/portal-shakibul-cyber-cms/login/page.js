@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, hp_access_key: hpAccessKey })
+        body: JSON.stringify({ password, hp_website_trap: hpAccessKey })
       });
 
       const data = await res.json();

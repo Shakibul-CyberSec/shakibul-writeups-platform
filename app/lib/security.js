@@ -35,7 +35,9 @@ export async function checkAdminRateLimit(ip) {
         return { allowed: false, remainingSeconds: Math.ceil(ttl / 1000) };
       }
       return { allowed: true, remaining: 5 - attempts };
-    } catch (e) {}
+    } catch (e) {
+      console.error('[Security] Admin Redis rate limit failed, using memory fallback:', e.message);
+    }
   }
 
   const record = memoryAdminLimits.get(cleanIp) || { count: 0, resetAt: now + windowMs };
@@ -71,7 +73,9 @@ export async function checkCommentRateLimit(ip) {
         return { allowed: false, remainingSeconds: Math.ceil(ttl / 1000) };
       }
       return { allowed: true, remaining: 3 - attempts };
-    } catch (e) {}
+    } catch (e) {
+      console.error('[Security] Comment Redis rate limit failed, using memory fallback:', e.message);
+    }
   }
 
   const record = memoryCommentLimits.get(cleanIp) || { count: 0, resetAt: now + windowMs };
@@ -94,12 +98,14 @@ export async function checkCommentRateLimit(ip) {
  */
 export function timingSafeCompare(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
-  let mismatch = a.length === b.length ? 0 : 1;
-  const len = Math.min(a.length, b.length);
-  for (let i = 0; i < len; i++) {
-    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  // If lengths differ, run a dummy comparison to prevent length-based timing oracle
+  if (bufA.length !== bufB.length) {
+    crypto.timingSafeEqual(bufA, bufA);
+    return false;
   }
-  return mismatch === 0;
+  return crypto.timingSafeEqual(bufA, bufB);
 }
 
 /**
@@ -157,9 +163,10 @@ export function sanitizeMarkdown(input) {
   if (typeof input !== 'string') return '';
   return input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '[REDACTED_SCRIPT]')
-    .replace(/javascript:/gi, 'no-javascript:')
-    .replace(/onerror\s*=/gi, 'no-onerror=')
-    .replace(/onload\s*=/gi, 'no-onload=')
+    .replace(/javascript\s*:/gi, 'no-javascript:')
+    .replace(/vbscript\s*:/gi, 'no-vbscript:')
+    .replace(/data\s*:/gi, 'no-data:')
+    .replace(/\bon\w+\s*=/gi, 'no-event=')
     .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '[REDACTED_IFRAME]');
 }
 
