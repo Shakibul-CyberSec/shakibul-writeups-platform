@@ -5,6 +5,9 @@ import NonceScript from './components/NonceScript';
 export const metadata = {
   title: 'Shakibul Security Writeups & Research Platform',
   description: 'Technical security research, CTF walkthroughs, defensive architecture, and vulnerability breakdowns by Shakibul Bokthiar.',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default async function RootLayout({ children }) {
@@ -14,6 +17,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head suppressHydrationWarning>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
