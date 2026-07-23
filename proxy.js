@@ -22,7 +22,7 @@ export async function proxy(request) {
 
   /* ---------- Strict Content Security Policy (CSP) Header ---------- */
   const isDev = process.env.NODE_ENV !== 'production';
-  const scriptSrc = `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ''} https://challenges.cloudflare.com/turnstile/v0/api.js https://vercel.live;`;
+  const scriptSrc = `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDev ? "'unsafe-eval'" : ''} https://challenges.cloudflare.com/turnstile/v0/api.js https://vercel.live https://va.vercel-scripts.com;`;
   const styleSrc = `style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com ${isDev ? "'unsafe-inline'" : ''};`;
 
   const cspHeader = `
@@ -31,7 +31,7 @@ export async function proxy(request) {
     ${styleSrc}
     font-src 'self' data: https://fonts.gstatic.com;
     img-src 'self' data: blob: https:;
-    connect-src 'self' https://challenges.cloudflare.com https://vercel.live;
+    connect-src 'self' https://challenges.cloudflare.com https://vercel.live https://va.vercel-scripts.com https://vitals.vercel-insights.com;
     frame-src 'self' https://challenges.cloudflare.com https://vercel.live;
     frame-ancestors 'none';
     base-uri 'none';
