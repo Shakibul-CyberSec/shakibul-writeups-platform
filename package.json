@@ -10,7 +10,7 @@
     "security-check": "node scripts/security-check.js"
   },
   "dependencies": {
-    "@upstash/redis": "^1.38.0",
+    "@upstash/redis": "^1.38.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "next": "^16.2.11",
