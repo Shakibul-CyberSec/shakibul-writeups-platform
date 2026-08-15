@@ -24,7 +24,7 @@ export default function Navbar() {
           {/* Right Navigation */}
           <div className="flex items-center space-x-3">
             <a
-              href="https://shakibul.com"
+              href="https://security.shakibul.com"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg border border-cyber-border text-cyber-gray hover:text-white hover:border-neon-green/40 font-sans text-xs font-semibold transition-all duration-300"
